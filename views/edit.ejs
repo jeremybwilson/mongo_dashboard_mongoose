@@ -1,0 +1,73 @@
+<% include partials/header %>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <% include partials/nav %>
+                </div>
+            </div>
+            <% if(hops){ %>
+            <form action="/hops/<%= hop._id %>" class='user-form' method="POST">
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for='name'>Hop name:</label>
+                        <input class='form-control' type='text' name='name' value='<%= hop.name %>' id='name'>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for='origin'>Origin:</label>
+                        <input class='form-control' type='text' name='origin' value='<%= hop.origin %>' id='origin'>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for='type'>Type:</label>
+                        <!-- <select class="custom-select" name='name' id="type">
+                            <option selected>Open this select menu</option>
+                            <option value="<%= hop.type %>"><%= hop.type %></option>
+                        </select> -->
+                        <input class='form-control' type='text' value='<%= hop.type %>' name='type' id='type'>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for='alpha_low'>Alpha (low):</label>
+                        <input class='form-control' type='text' value='<%= hop.alpha.low %>' name='alpha[low]' id='low'>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for='alpha_high'>Alpha (high):</label>
+                        <input class='form-control' type='text' value='<%= hop.alpha.high %>' name='alpha[high]' id='high'>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for='description'>Description:</label>
+                        <textarea class='form-control' rows='3' name='description' id='description'><%= hop.description %></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class='btn btn-primary btn-sm' type='submit'>Submit</button> <a class="btn btn-link" href="/hops/destroy/<%= hop._id%>">Delete</a>
+                    </div>
+                </div>
+            </div>
+            </form>
+            <% } %>
+            <div class="row">
+                <div class="col">
+                    <div class="errors">
+                    <% if(messages.create_error) { %>
+                        <% for (const key of messages.create_error) { %>
+                            <p><%= key %></p>
+                        <% } %>
+                    <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+<% include partials/footer %>
