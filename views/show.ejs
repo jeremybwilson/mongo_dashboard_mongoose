@@ -7,14 +7,12 @@
             </div>
             <div class="row">
                 <div class="col">
-                <% if(hops){ %>
+                <% if(typeof hop != 'undefined'){ %>
                     <h1><%= title %></h1>
-                    <% for(hop of hops) { %>
                     <h3><%= hop.name %></h3>
                     <p><span class='strong'>Type</span>: <%= hop.type %> - <span class='strong'>Alpha</span> (bitterness): <%= hop.alpha.low %>-<%= hop.alpha.high %>% - <span class='strong'>Country of Origin</span>: <%= hop.origin %></p>
                     <p><span class='strong'>Description</span>: <%= hop.description %> <a class="btn btn-link" href="/hops/edit/<%= hop._id%>">Edit</a></p>
                     <hr />
-                    <% } %>
                 </div>
             </div>
                 <%  } else { %>

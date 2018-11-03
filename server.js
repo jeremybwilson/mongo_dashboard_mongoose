@@ -32,6 +32,8 @@ let name = '';
 mongoose.connect('mongodb://localhost:27017/hops_db', { useNewUrlParser: true });
 mongoose.connection.on('connected', () => console.log('MongoDB connected'));
 
+const varieties = ['aroma', 'bittering', 'dual purpose'];
+
 // schema
 const HopsSchema = new mongoose.Schema({
     name: {
@@ -48,6 +50,7 @@ const HopsSchema = new mongoose.Schema({
     },
     type: {
         type: String,
+        enum: varieties,
         required: [true, 'A type is required'],
         minlength: 3,
         trim: true
@@ -77,15 +80,13 @@ app.get('/', (request, response) => {
     // This is where we will retrieve the hops from the database 
     // and include them in the view page we will be rendering.
     Hop.find({})
-        .then((hops_db) => {
-            const hops = hops_db;
-            // console.log('successfully retrieved all hops');
-            // console.log(hops_db);
+        .then((hops) => {
+            console.log('successfully retrieved all hops');
             response.render('index', {hops, title: 'Hops Dashboard' })
         })
         // if there is an error console.log that something went wrong!
         .catch(error => {
-            console.log('something went wrong');
+            console.log('something went wrong in the index route');
             for (let key in error.errors) {
                 request.flash('get_error', error.errors[key].message)
                 console.log(error.errors[key].message);
@@ -96,43 +97,27 @@ app.get('/', (request, response) => {
 // create new hops form page route
 app.get('/hops/new', (request, response) => {
     console.log('getting to add new hops route');
-    Hop.find({})
-        .then((hops_db) => {
-            const hops = hops_db;
-            console.log('successfully retrieved hops info from the db');
-            response.render('new', {hops, title: 'Add a New Hop Variety' })
-        })
-        // if there is an error console.log that something went wrong!
-        .catch(error => {
-            console.log('something went wrong');
-            for (let key in error.errors) {
-                request.flash('get_error', error.errors[key].message)
-                console.log(error.errors[key].message);
-            }
-        });
+    response.render('new', { varieties, title: 'Add a New Hop Variety' })
 });
 
 // Add Hop Request 
 // When the user presses the submit button on index.ejs it should send a post request to '/hops'.
 // In this route we should add the hop to the database and then redirect to the root route (index view)
-
 // create new hop post action
 app.post('/hops', (request, response) => {
     console.log("POST DATA", request.body);
-    // This is where we would add the hop plant entry from request.body to the database.
-    // create a new Hop with the hop name, origin, type, and description corresponding to those from request.body
-    // const hop = new Hop({name: request.body.name, origin: request.body.origin, type: request.body.type, description: request.body.description});
+    // This is where we would add the hop plant entry from request.body to the db.
+    // Create a new Hop with the hop name, origin, type, and description, and alpha values corresponding to those from request.body
     Hop.create(request.body)
-        .then(hop => {
-            console.log('created ', hop);
+        .then(hop => {  // hope represents everything being passed to the form by request.body
             console.log(`successfully added a hop!`);
             response.redirect('/');
         })
         .catch(error => {
+            console.log(`something went wrong`);
             for (let key in error.errors) {
                 request.flash('create_error', error.errors[key].message);
             }
-            console.log(`something went wrong`);
             response.redirect('/hops/new');
         });
 })
@@ -141,15 +126,12 @@ app.post('/hops', (request, response) => {
 app.get('/hops/:_id', (request, response) => {
     const which = request.params._id;
     console.log(`viewing an individual hop route`);
-    Hop.find({_id:which})
-        .then((hops_db) => {
-            // console.log(hops_db);
-            hops = hops_db;  // hops here may need to be singular to not have a naming conflict
-            response.render('view', {hop, title: 'View Hop Variety page'});
+    Hop.findById(which)
+        .then((hop) => {
+            response.render('show', {hop, title: 'View Hop Variety page'});
         })
-        // if there is an error console.log that something went wrong!
         .catch(error => {
-            console.log('something went wrong');
+            console.log('something went wrong in the individual hops view route');
             for (let key in error.errors) {
                 request.flash('get_error', error.errors[key].message)
                 console.log(error.errors[key].message);
@@ -162,61 +144,37 @@ app.get('/hops/:_id', (request, response) => {
 app.post('/hops/:_id', (request, response) => {
     const which = request.params._id;
     // console.log(`posting to an individual hop route`);
-        Hop.findByIdAndUpdate({_id:which})
-            .then((hops_db) => {
-                // console.log(hops_db);
-                hops = hops_db;  // hops here may need to be singular to not have a naming conflict
-                console.log(`successfully updated hops info!`);
-                response.redirect('/hops/:_id');
-            })
-            .catch(error => {
-                for (let key in error.errors) {
-                    request.flash('create_error', error.errors[key].message);
-                }
-                console.log(`something went wrong, ${error}`);
-                response.redirect('/hops/edit/:_id');
-            });
-    // for([entry, data] of Object.entries(request.body)){
-    //     if(data != ''){
-    //         console.log('which: ' + which + ' entry: ' + entry + ' data: ' + data);
-    //         let key = entry;
-    //         let what = {[key]: data};
-    //         console.log(`what: ${what}`);
-    //         Hop.findByIdAndUpdate({which, what})
-    //             .then((hops_db) => {
-    //                 // console.log(hops_db);
-    //                 hops = hops_db;  // hops here may need to be singular to not have a naming conflict
-    //                 console.log(`successfully updated hops info!`);
-    //                 response.redirect('/hops/:_id');
-    //             })
-    //             .catch(error => {
-    //                 for (let key in error.errors) {
-    //                     request.flash('create_error', error.errors[key].message);
-    //                 }
-    //                 console.log(`something went wrong, ${error}`);
-    //                 response.redirect('/hops/edit/:_id');
-    //             });
-    //     }
-    // }
+    // which represents id value, request.body represents all information passed from the form, 
+    // {new: true} object represents a brand new value
+    Hop.findByIdAndUpdate(which, request.body, {new: true}) 
+        .then((hops) => {
+            console.log(`successfully updated hops info!`);
+            response.redirect(`/hops/${hops._id}`);
+        })
+        .catch(error => {
+            for (let key in error.errors) {
+                request.flash('create_error', error.errors[key].message);
+            }
+            console.log(`something went wrong in the hops update/post route, ${error.errors[key].message}`);
+            response.redirect(`/hops/edit/${which}`);
+        });
 });
 
 // edit hop form route
 app.get('/hops/edit/:_id', (request, response) => {
     const which = request.params._id;
     console.log(`editing a individual hop route`);
-    Hop.find({_id:which})
-        .then((hops_db) => {
-            // console.log(hops_db);
-            hops = hops_db;  // hops here may need to be singular to not have a naming conflict
-            response.render('edit', {hop, title: 'Edit Hops page'});
+    Hop.findById(which)
+        .then((hop) => {
+            response.render('edit', {hop, varieties, title: 'Edit Hops page'});
         })
         // if there is an error console.log that something went wrong!
         .catch(error => {
-            console.log('something went wrong');
+            console.log('something went wrong in the hops edit route');
             for (let key in error.errors) {
                 request.flash('get_error', error.errors[key].message)
-                console.log(error.errors[key].message);
             }
+            console.log(error);
             response.redirect('/');
         });
 });

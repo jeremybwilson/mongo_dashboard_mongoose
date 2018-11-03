@@ -7,8 +7,9 @@
             </div>
             <div class="row">
                 <div class="col">
-                <% if(hops){ %>
-                    <% for(hop of hops) { %>
+                    <h1>Welcome to the <%= title %></h1>
+                <% if(typeof hops != 'undefined'){ %>
+                    <% for(const hop of hops) { %>
                     <h3><%= hop.name %></h3>
                     <p><span class='strong'>Type</span>: <%= hop.type %> - <span class='strong'>Alpha</span> (bitterness): <%= hop.alpha.low %>-<%= hop.alpha.high %>% - <span class='strong'>Country of Origin</span>: <%= hop.origin %></p>
                     <p><span class='strong'>Description:</span> <%= hop.description %> <a href="/hops/<%= hop._id%>">View profile.</a></p>

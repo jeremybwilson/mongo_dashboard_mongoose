@@ -3,9 +3,10 @@
             <div class="row">
                 <div class="col">
                     <% include partials/nav %>
+                    <h3>Edit <%= hop.name %> Info</h3>
                 </div>
             </div>
-            <% if(hops){ %>
+            <% if(typeof hop != 'undefined'){ %>
             <form action="/hops/<%= hop._id %>" class='user-form' method="POST">
             <div class="row">
                 <div class="col-4">
@@ -27,6 +28,9 @@
                             <option selected>Open this select menu</option>
                             <option value="<%= hop.type %>"><%= hop.type %></option>
                         </select> -->
+                        <% for(const variety of varieties) { %>
+                            <option value="<%= variety %>"><%= variety %></option>
+                        <% } %>
                         <input class='form-control' type='text' value='<%= hop.type %>' name='type' id='type'>
                     </div>
                 </div>

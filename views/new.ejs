@@ -24,8 +24,8 @@
                         <label for='type'>Type:</label>
                         <select class="custom-select" name="type" id="type">
                             <option selected>Open this select menu</option>
-                            <% for(const hop of hops) { %>
-                            <option value="<%= hop.type %>"><%= hop.type %></option>
+                            <% for(const variety of varieties) { %>
+                            <option value="<%= variety %>"><%= variety %></option>
                             <% } %>
                         </select>
                         <!-- <input class='form-control' type='text' name='type' id='type'> -->
